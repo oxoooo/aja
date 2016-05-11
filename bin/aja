@@ -2,6 +2,8 @@
 
 # coding: utf-8
 
+require 'json'
+
 class Source
   def initialize()    
     @code = {}
@@ -68,7 +70,7 @@ class Source
 
   def save
     @code[:meta] = @input
-    puts @code
+    @code
   end
 
   private
@@ -106,7 +108,14 @@ end
 
 compile = Source.new()
 
-source = File.open(ARGV[0]).read
+source = File.open(ARGV[0]).read()
 
 compile.instance_eval source
-compile.save
+
+file_name = File.basename(ARGV[0], '.*')
+
+code = compile.save.to_json
+
+File.open("#{file_name}.json", 'w') do |f|
+  f.puts code
+end
