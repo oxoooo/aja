@@ -1,0 +1,112 @@
+#!/usr/bin/env ruby
+
+# coding: utf-8
+
+class Source
+  def initialize()    
+    @code = {}
+    @input = {}
+  end
+  
+  def provides arg
+    @code[:provides] = arg
+  end
+
+  def name name
+    @code[:name] = name
+  end
+
+  def icon url
+    @code[:icon] = url
+  end
+
+  def color color
+    @code[:color] = color
+  end
+
+  def description text
+    @code[:description] = text
+  end
+
+  def keywords *args
+    @code[:keywords] = args.to_a
+  end
+
+  def endpoint url
+    @code[:endpoint] = url
+  end
+
+  def home_page url
+    @code[:home_page] = url
+  end
+
+  def input field_type, name, description, default: nil, choice: nil, range: nil
+    raise "#{field_type} 不支持的类型" if types.index(field_type).nil?
+    raise "#{name} 不可和类型重名" unless types.index(name).nil?
+
+    @input[name] = {
+      type: field_type,
+      name: name,
+      description: description
+    }
+
+    unless default.nil?
+      @input[name][:default] = default
+    end
+
+    unless choice.nil?
+      valid_choice choice
+      @input[name][:choice] = choice
+    end
+
+    unless range.nil?
+      valid_range range
+      @input[name][:range] = range
+    end
+
+  end
+
+  def save
+    @code[:meta] = @input
+    puts @code
+  end
+
+  private
+
+  def valid_range value
+    raise "range 必须为数组类型" if value.class.to_s != "Array"
+    raise "range 类型必须为长度为3的数组" if value.length != 3
+
+    value.each do |i|
+      raise "range 每一个元素必须为整数" if i.class.to_s != 'Fixnum'
+    end
+  end
+
+  def valid_choice value
+    raise "choice 必须为数组" if value.class.to_s != 'Array'
+    value.each do |i|
+      raise "choice 每一个元素必须是string类型" if i.class.to_s != "String"
+    end
+  end
+
+  def types
+    [
+      :location,
+      :time,
+      :text,
+      :range,
+      :image,
+      :number,
+      :person
+    ]
+  end
+
+end
+
+
+compile = Source.new()
+
+source = File.open(ARGV[1]).read
+
+compile.instance_eval source
+compile.save
