@@ -106,7 +106,7 @@ end
 
 compile = Source.new()
 
-source = File.open(ARGV[1]).read
+source = File.open(ARGV[0]).read
 
 compile.instance_eval source
 compile.save
